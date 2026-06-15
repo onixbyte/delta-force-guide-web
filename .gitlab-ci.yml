@@ -1,0 +1,33 @@
+image: node:24.15-trixie-slim
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  rules:
+    - if: $CI_RELEASE_DESCRIPTION
+  script:
+    - corepack enable
+    - corepack prepare pnpm --activate
+    - pnpm install --frozen-lockfile
+    - pnpm build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 7 days
+
+deploy:
+  stage: deploy
+  rules:
+    - if: $CI_RELEASE_DESCRIPTION
+  needs:
+    - build
+  script:
+    - apt-get update -qq && apt-get install -y -qq openssh-client rsync
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY_BASE64" | base64 -d > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+    - rsync -avz --delete dist/ "${SSH_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}"

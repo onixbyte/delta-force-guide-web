@@ -32,7 +32,7 @@ export default function HeroLayout() {
   }
 
   return (
-    <div className="bg-gray-50 ">
+    <div className="bg-[#1b252a] ">
       {/* Navigation Header */}
       <header className="bg-[#0b0f14] shadow-sm border-b">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 h-full">
@@ -50,7 +50,7 @@ export default function HeroLayout() {
                 }>
                 武器列表
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/mod-codes"
                 className={({ isActive }) =>
                   `nav-item inline-flex items-center px-10 h-full text-base font-medium transition-all duration-200 ${
@@ -58,14 +58,14 @@ export default function HeroLayout() {
                   } text-gray-500 hover:text-white`
                 }>
                 改枪码
-              </NavLink>
+              </NavLink> */}
             </nav>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-screen-2xl mx-auto py-6 sm:px-6 lg:px-10">
+      <main className=" max-w-screen-2xl mx-auto py-6 sm:px-6 lg:px-10">
         <div className="px-4 py-6 sm:px-0">
           <Outlet />
         </div>
