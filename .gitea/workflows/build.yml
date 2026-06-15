@@ -30,12 +30,15 @@ jobs:
       - name: Build release archive
         run: pnpm build:tar
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload artifact to server
+        uses: appleboy/scp-action@v0.1.7
         with:
-          name: dist-archive
-          path: dist.tar.gz
-          retention-days: 1
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "dist.tar.gz"
+          target: "/tmp/dist.tar.gz"
 
   upload-release-asset:
     name: Upload to Gitea Release
@@ -43,16 +46,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - name: Download artifact from server
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          name: dist-archive
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command: |
+            set -e
+            mkdir -p ~/.cache/gitea-artifacts
+            cp /tmp/dist.tar.gz ~/.cache/gitea-artifacts/
 
       - name: Upload release asset
         uses: https://gitea.com/actions/forgejo-release@v1
         with:
           direction: upload
-          files: dist.tar.gz
+          files: ~/.cache/gitea-artifacts/dist.tar.gz
         env:
           FORGEJO_TOKEN: ${{ secrets.GITEA_TOKEN }}
 
@@ -62,22 +72,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-archive
-
-      - name: Upload archive to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ vars.DEPLOY_HOST }}
-          username: ${{ vars.DEPLOY_USER }}
-          port: ${{ vars.DEPLOY_PORT }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "dist.tar.gz"
-          target: "/tmp/"
-
-      - name: Extract archive and set ownership
+      - name: Extract archive and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ vars.DEPLOY_HOST }}
