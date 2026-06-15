@@ -8,35 +8,37 @@
     "build": "tsc -b && vite build",
     "build:tar": "pnpm build && tar -czf dist.tar.gz dist",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "deploy": "pnpm build && gh-pages -d dist",
-    "predeploy": "pnpm build"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.1.2",
+    "@ant-design/icons": "^6.2.2",
     "@reduxjs/toolkit": "^2.11.2",
-    "@tailwindcss/vite": "^4.2.2",
-    "@tanstack/react-virtual": "^3.13.23",
-    "antd": "^6.3.5",
-    "axios": "^1.14.0",
+    "@tailwindcss/vite": "^4.2.4",
+    "@tanstack/react-virtual": "^3.13.24",
+    "antd": "^6.3.7",
+    "axios": "^1.16.0",
     "dayjs": "^1.11.20",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "react-redux": "^9.2.0",
-    "react-router": "^7.14.0",
-    "react-router-dom": "^7.14.0",
+    "react-router": "^7.15.0",
+    "react-router-dom": "^7.15.0",
     "redux-persist": "^6.0.0",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^22.19.17",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "globals": "^17.4.0",
-    "prettier": "^3.8.1",
-    "typescript": "~6.0.2",
-    "vite": "^8.0.8"
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.11",
+    "vite-plugin-markdown": "^2.2.0",
+    "vite-plugin-port-checker": "^1.0.1"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [

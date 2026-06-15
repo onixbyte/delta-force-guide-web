@@ -1,5 +1,4 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit"
-import { useDispatch, useSelector } from "react-redux"
 import {
   persistStore,
   persistReducer,
@@ -11,6 +10,7 @@ import {
   REGISTER,
 } from "redux-persist"
 import createWebStorage from "redux-persist/es/storage/createWebStorage"
+import { authReducer } from "./auth-slice"
 import { firearmsReducer } from "./firearms-slice"
 
 const storage = createWebStorage(import.meta.env.VITE_REDUX_STORAGE ?? "local")
@@ -18,10 +18,11 @@ const storage = createWebStorage(import.meta.env.VITE_REDUX_STORAGE ?? "local")
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["firearms"],
+  whitelist: ["auth", "firearms"],
 }
 
 const rootReducer = combineReducers({
+  auth: authReducer,
   firearms: firearmsReducer
 })
 
@@ -44,5 +45,3 @@ export type RootState = ReturnType<typeof rootReducer>
 export type AppDispatch = typeof store.dispatch
 export type AppStore = typeof store
 
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
-export const useAppSelector = useSelector.withTypes<RootState>()

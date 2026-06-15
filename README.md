@@ -66,8 +66,6 @@ pnpm preview
 ```text
 src/
 	components/       Shared UI components
-	data/             Modification code dataset
-	init/             Application initialisation
 	layout/           Route layouts
 	page/             Route pages
 	router/           Router configuration

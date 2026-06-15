@@ -1,6 +1,7 @@
 @layer theme, base, antd, components, utilities;
 
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 html, body {
   margin: 0;
@@ -33,4 +34,33 @@ html, body {
   .mod-codes-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+.nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(to top, #22ffa7, transparent);
+  transition: height 0.2s ease-in-out;
+  opacity: 0.35;
+  pointer-events: none;
+  
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+  height: 80%;  /* Height of the upward glow; adjustable. */
+}
+
+.nav-item:hover,
+.nav-item.active {
+  color: white;
 }

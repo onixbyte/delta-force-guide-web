@@ -1,0 +1,95 @@
+name: Build and Deploy
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build release archive
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build release archive
+        run: pnpm build:tar
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-archive
+          path: dist.tar.gz
+          retention-days: 1
+
+  upload-release-asset:
+    name: Upload to Gitea Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-archive
+
+      - name: Upload release asset
+        uses: https://gitea.com/actions/forgejo-release@v1
+        with:
+          direction: upload
+          files: dist.tar.gz
+        env:
+          FORGEJO_TOKEN: ${{ secrets.GITEA_TOKEN }}
+
+  deploy-to-server:
+    name: Deploy to onixbyte.cn
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-archive
+
+      - name: Upload archive to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "dist.tar.gz"
+          target: "/tmp/"
+
+      - name: Extract archive and set ownership
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
+            mkdir -p "$DEPLOY_PATH"
+            rm -rf "$DEPLOY_PATH"/*
+            tar -xzf /tmp/dist.tar.gz -C "$DEPLOY_PATH" --strip-components=1
+            chown -R caddy:caddy "$DEPLOY_PATH"
+            rm -f /tmp/dist.tar.gz
