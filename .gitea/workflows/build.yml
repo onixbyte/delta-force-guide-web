@@ -5,8 +5,8 @@ on:
     types: [published]
 
 jobs:
-  build-deploy:
-    name: Build, Release and Deploy
+  build:
+    name: Build release archive
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +30,24 @@ jobs:
       - name: Build release archive
         run: pnpm build:tar
 
+      - name: Upload build artifact
+        uses: maxsargentdev/gitea-upload-artifact@v4
+        with:
+          name: dist-archive
+          path: dist.tar.gz
+          retention-days: 1
+
+  upload-release-asset:
+    name: Upload to Gitea Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: christopherHX/gitea-download-artifact@v4
+        with:
+          name: dist-archive
+
       - name: Upload to Gitea Release
         run: |
           set -e
@@ -41,6 +59,17 @@ jobs:
             -H "Content-Type: application/gzip" \
             --data-binary "@dist.tar.gz" \
             "${URL}"
+
+  deploy-to-server:
+    name: Deploy to onixbyte.cn
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: christopherHX/gitea-download-artifact@v4
+        with:
+          name: dist-archive
 
       - name: Upload archive to server
         env:
