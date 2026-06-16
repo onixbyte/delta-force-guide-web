@@ -37,7 +37,7 @@ jobs:
           username: ${{ vars.DEPLOY_USER }}
           port: ${{ vars.DEPLOY_PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command: rm -rf /tmp/dist.tar.gz /tmp/dist.tar.gz/
+          command: rm -f /tmp/dist.tar.gz /tmp/*.tar.gz
 
       - name: Upload artifact to server
         uses: appleboy/scp-action@v0.1.7
