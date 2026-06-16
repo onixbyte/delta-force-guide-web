@@ -30,6 +30,15 @@ jobs:
       - name: Build release archive
         run: pnpm build:tar
 
+      - name: Clean up previous build artifacts on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command: rm -rf /tmp/dist.tar.gz /tmp/dist.tar.gz/
+
       - name: Upload artifact to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -38,7 +47,7 @@ jobs:
           port: ${{ vars.DEPLOY_PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "dist.tar.gz"
-          target: "/tmp/dist.tar.gz"
+          target: "/tmp/"
 
   upload-release-asset:
     name: Upload to Gitea Release
@@ -47,28 +56,41 @@ jobs:
 
     steps:
       - name: Download artifact from server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ vars.DEPLOY_HOST }}
-          username: ${{ vars.DEPLOY_USER }}
-          port: ${{ vars.DEPLOY_PORT }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command: |
-            set -e
-            mkdir -p ~/.cache/gitea-artifacts
-            cp /tmp/dist.tar.gz ~/.cache/gitea-artifacts/
-
-      - name: Upload release asset
-        uses: https://gitea.com/actions/forgejo-release@v1
-        with:
-          direction: upload
-          files: ~/.cache/gitea-artifacts/dist.tar.gz
         env:
-          FORGEJO_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -e
+          SSH_DIR="${RUNNER_TEMP}/ssh"
+          mkdir -p "$SSH_DIR"
+          chmod 700 "$SSH_DIR"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$SSH_DIR/key"
+          chmod 600 "$SSH_DIR/key"
+          scp -i "$SSH_DIR/key" \
+              -P "$DEPLOY_PORT" \
+              -o StrictHostKeyChecking=accept-new \
+              -o UserKnownHostsFile="$SSH_DIR/known_hosts" \
+              "${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/dist.tar.gz" \
+              ./dist.tar.gz
+          rm -rf "$SSH_DIR"
+
+      - name: Upload release asset via Gitea API
+        run: |
+          set -e
+          RELEASE_ID=$(jq -r '.release.id' "$GITEA_EVENT_PATH")
+          URL="${GITEA_SERVER_URL}/api/v1/repos/${GITEA_REPOSITORY}/releases/${RELEASE_ID}/assets?name=dist.tar.gz"
+          curl -fsSL \
+            -X POST \
+            -H "Authorization: token ${GITEA_TOKEN}" \
+            -H "Content-Type: application/gzip" \
+            --data-binary "@dist.tar.gz" \
+            "${URL}"
 
   deploy-to-server:
     name: Deploy to onixbyte.cn
-    needs: build
+    needs: [build, upload-release-asset]
     runs-on: ubuntu-latest
 
     steps:
