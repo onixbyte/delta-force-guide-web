@@ -30,15 +30,6 @@ jobs:
       - name: Build release archive
         run: pnpm build:tar
 
-      - name: Clean up previous build artifacts on server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ vars.DEPLOY_HOST }}
-          username: ${{ vars.DEPLOY_USER }}
-          port: ${{ vars.DEPLOY_PORT }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command: rm -f /tmp/dist.tar.gz /tmp/*.tar.gz
-
       - name: Upload artifact to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -47,7 +38,16 @@ jobs:
           port: ${{ vars.DEPLOY_PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "dist.tar.gz"
-          target: "/tmp/"
+          target: "/tmp/build-artifact/"
+
+      - name: Move artifact to /tmp
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          username: ${{ vars.DEPLOY_USER }}
+          port: ${{ vars.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command: mv /tmp/build-artifact/dist.tar.gz /tmp/dist.tar.gz && rm -rf /tmp/build-artifact
 
   upload-release-asset:
     name: Upload to Gitea Release
