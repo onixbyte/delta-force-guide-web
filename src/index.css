@@ -202,3 +202,21 @@ body {
 .ant-collapse-body{
   background: #1e1e1e;
 }
+
+.ant-modal-container{
+  width: 620px;
+}
+
+.hide-scrollbar {
+  max-height: 500px;      /* 限制高度，触发滚动 */
+  overflow-y: auto;       /* 允许滚动 */
+  
+  /* 隐藏滚动条（Firefox 和 IE） */
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* 隐藏滚动条（Chrome/Safari/Edge 新版） */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

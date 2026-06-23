@@ -172,118 +172,105 @@ export default function FirearmsPage() {
           </div>
         </div>
         <div className="mb-6">
-          {loading?(<div className="flex justify-center items-center h-64">
-    <Spin size="large" tip="加载中..." />
-  </div>):(
-          <Row gutter={[16, 16]}>
-            {firearms.map((firearm) => (
-              <Col key={firearm.id} xs={24} md={24} lg={24}>
+          {loading ? (<div className="flex justify-center items-center h-64">
+            <Spin size="large" tip="加载中..." />
+          </div>) : (
+            <Row gutter={[16, 16]}>
+              {firearms.map((firearm) => (
+                <Col key={firearm.id} xs={24} md={24} lg={24}>
 
-                <Card
-                  className="hex-bg border-5px-#142c38"
-                  extra={
-                    user ? (
-                      <div className="flex items-center gap-1">
-                        <Button type="link" size="small" onClick={() => setEditingFirearm(firearm)}>
-                          编辑
-                        </Button>
-                        <Popconfirm
-                          title="确认删除武器"
-                          description={`确定要删除 ${firearm.name} 吗？该操作不可撤销。`}
-                          okText="删除"
-                          cancelText="取消"
-                          okButtonProps={{ danger: true, loading: deletingId === firearm.id }}
-                          onConfirm={() => handleDelete(firearm)}>
-                          <Button type="link" danger size="small" loading={deletingId === firearm.id}>
-                            删除
+                  <Card
+                    className="hex-bg border-5px-#142c38"
+                    extra={
+                      user ? (
+                        <div className="flex items-center gap-1">
+                          <Button type="link" size="small" onClick={() => setEditingFirearm(firearm)}>
+                            编辑
                           </Button>
-                        </Popconfirm>
-                      </div>
-                    ) : null
-                  }
-                  variant="outlined"
-                  style={{
-                    height: '100%', display: 'flex', flexDirection: 'column'
-                  }}
-                  styles={{
-                    root: {
-                      border: '1px solid #313131'
-                    },
-                    header: {
-                      borderBottom: '1px solid #303030',
-                    },
-                    body: {
-                      flex: 1,
-                      overflow: 'auto',
-                      padding: '12px',
-
-                    },
-                    actions: {
-                      flexShrink: 0,
-                      background: '#1e1e1e',
-                      display: 'flex'
+                          <Popconfirm
+                            title="确认删除武器"
+                            description={`确定要删除 ${firearm.name} 吗？该操作不可撤销。`}
+                            okText="删除"
+                            cancelText="取消"
+                            okButtonProps={{ danger: true, loading: deletingId === firearm.id }}
+                            onConfirm={() => handleDelete(firearm)}>
+                            <Button type="link" danger size="small" loading={deletingId === firearm.id}>
+                              删除
+                            </Button>
+                          </Popconfirm>
+                        </div>
+                      ) : null
                     }
-                  }}
-                  actions={[
-                    <div>
-                      <Collapse
+                    variant="outlined"
+                    style={{
+                      height: '100%', display: 'flex', flexDirection: 'column'
+                    }}
+                    styles={{
+                      root: {
+                        border: '1px solid #313131'
+                      },
+                      header: {
+                        borderBottom: '1px solid #303030',
+                      },
+                      body: {
+                        flex: 1,
+                        overflow: 'auto',
+                        padding: '12px',
 
-                        expandIcon={() => null}
-                        styles={
-                          {
-                            root: {
-                              background: '#1e1e1e',
-                              width: '100%'
+                      },
+                      actions: {
+                        flexShrink: 0,
+                        background: '#1e1e1e',
+                        display: 'flex'
+                      }
+                    }}
+                    actions={[
+                      <div>
+                        <Collapse
+
+                          expandIcon={() => null}
+                          styles={
+                            {
+                              root: {
+                                background: '#1e1e1e',
+                                width: '100%'
+                              }
                             }
                           }
-                        }
-                        items={[{
-                          key: '1',
-                          label: (
-                            <Button
-                              variant="outlined"
-                              styles={{
-                                root: {
-                                  color: '#10E28C',
-                                  border: '1px solid #10E28C',
-                                  background: '#16343b96',
-                                  width: '20%',
-                                }
-                              }}
-                            >
-                              查看改枪码
-                            </Button>
-                          ),
-                          children: <ModCodes firearmId={String(firearm.id)} />
-                        }]}
-                      />
-                    </div>,
-                  ]}>
-                  <div className="flex flex-col gap-3">
-                    <div className="lmr-container">
-                      <div className="lmr-left">
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          width: '100%'
-                        }}>
-                          <span style={{
-                            display: 'inline-block',
-                            backgroundColor: '#555555',
-                            color: 'white',
-                            padding: '4px 12px',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            letterSpacing: '0.5px'
+                          items={[{
+                            key: '1',
+                            label: (
+                              <Button
+                                variant="outlined"
+                                styles={{
+                                  root: {
+                                    color: '#10E28C',
+                                    border: '1px solid #10E28C',
+                                    background: '#16343b96',
+                                    width: '20%',
+                                  }
+                                }}
+                              >
+                                查看改枪码
+                              </Button>
+                            ),
+                            children: <ModCodes firearmId={String(firearm.id)} />
+                          }]}
+                        />
+                      </div>,
+                    ]}>
+                    <div className="flex flex-col gap-3">
+                      <div className="lmr-container">
+                        <div className="lmr-left">
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            width: '100%'
                           }}>
-                            {firearm.name}
-                          </span>
-                          <span className="flex items-center justify-between"
-                            style={{
+                            <span style={{
                               display: 'inline-block',
-                              backgroundColor: '#2d4f5796',
+                              backgroundColor: '#555555',
                               color: 'white',
                               padding: '4px 12px',
                               borderRadius: '4px',
@@ -291,171 +278,184 @@ export default function FirearmsPage() {
                               fontWeight: '500',
                               letterSpacing: '0.5px'
                             }}>
-                            {firearmTypeText[firearm.type]}
-
-                          </span></div>
-                      </div>
-                      <div className="lmr-middle">
-                        <div style={{
-                          color: 'white',
-                          padding: '4px 12px',
-                          borderRadius: '4px',
-                          fontSize: '14px',
-                          fontWeight: '500',
-                          letterSpacing: '0.5px'
-                        }}>
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', // 最小宽度160px
-                            gap: '12px',
-                          }}>
-                            {/* 武器输出等级 */}
-                            <div style={{
-                              border: '2px solid #10E28C',
-                              backgroundColor: '#16343b96',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              textAlign: 'center'
-                            }}>
-                              <div style={{
-                                padding: '4px 0px',
+                              {firearm.name}
+                            </span>
+                            <span className="flex items-center justify-between"
+                              style={{
+                                display: 'inline-block',
+                                backgroundColor: '#2d4f5796',
+                                color: 'white',
+                                padding: '4px 12px',
                                 borderRadius: '4px',
-                                color: '#10E28C',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                marginBottom: '6px',
-                                whiteSpace: 'nowrap',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                letterSpacing: '0.5px'
+                              }}>
+                              {firearmTypeText[firearm.type]}
+
+                            </span></div>
+                        </div>
+                        <div className="lmr-middle">
+                          <div style={{
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            letterSpacing: '0.5px'
+                          }}>
+                            <div style={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', // 最小宽度160px
+                              gap: '12px',
+                            }}>
+                              {/* 武器输出等级 */}
+                              <div style={{
+                                border: '2px solid #10E28C',
+                                backgroundColor: '#16343b96',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
                                 textAlign: 'center'
                               }}>
-                                武器输出等级
+                                <div style={{
+                                  padding: '4px 0px',
+                                  borderRadius: '4px',
+                                  color: '#10E28C',
+                                  fontSize: '13px',
+                                  fontWeight: 500,
+                                  marginBottom: '6px',
+                                  whiteSpace: 'nowrap',
+                                  textAlign: 'center'
+                                }}>
+                                  武器输出等级
+                                </div>
+                                <div style={{
+                                  fontSize: '16px',
+                                  fontWeight: 600,
+                                  color: '#ffffff'
+                                }}>
+                                  {firearm.level}
+                                </div>
                               </div>
+
+                              {/* 子弹口径 */}
                               <div style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#ffffff'
+                                border: '2px solid #10E28C',
+                                backgroundColor: '#16343b96',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'center'
                               }}>
-                                {firearm.level}
+                                <div style={{
+                                  padding: '4px 12px',
+                                  borderRadius: '4px',
+                                  color: '#10E28C',
+                                  fontSize: '13px',
+                                  fontWeight: 500,
+                                  marginBottom: '6px',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  子弹口径
+                                </div>
+                                <div style={{
+                                  fontSize: '16px',
+                                  fontWeight: 600,
+                                  color: '#ffffff'
+                                }}>
+                                  {firearm.calibre}
+                                </div>
+                              </div>
+
+                              {/* 每秒甲伤 */}
+                              <div style={{
+                                border: '2px solid #10E28C',
+                                backgroundColor: '#16343b96',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'center'
+                              }}>
+                                <div style={{
+                                  padding: '4px 12px',
+                                  borderRadius: '4px',
+                                  color: '#10E28C',
+                                  fontSize: '13px',
+                                  fontWeight: 500,
+                                  marginBottom: '6px',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  每秒甲伤
+                                </div>
+                                <div style={{
+                                  fontSize: '16px',
+                                  fontWeight: 600,
+                                  color: '#ffffff'
+                                }}>
+                                  {asDps(firearm.fireRate, firearm.armourDamage)}
+                                </div>
+                              </div>
+
+                              {/* 每秒肉伤 */}
+                              <div style={{
+                                border: '2px solid #10E28C',
+                                backgroundColor: '#16343b96',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                textAlign: 'center'
+                              }}>
+                                <div style={{
+                                  padding: '4px 12px',
+                                  borderRadius: '4px',
+                                  color: '#10E28C',
+                                  fontSize: '13px',
+                                  fontWeight: 500,
+                                  marginBottom: '6px',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  每秒肉伤
+                                </div>
+                                <div style={{
+                                  fontSize: '16px',
+                                  fontWeight: 600,
+                                  color: '#ffffff'
+                                }}>
+                                  {asDps(firearm.fireRate, firearm.bodyDamage)}
+                                </div>
                               </div>
                             </div>
 
-                            {/* 子弹口径 */}
-                            <div style={{
-                              border: '2px solid #10E28C',
-                              backgroundColor: '#16343b96',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              textAlign: 'center'
-                            }}>
-                              <div style={{
-                                padding: '4px 12px',
-                                borderRadius: '4px',
-                                color: '#10E28C',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                marginBottom: '6px',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                子弹口径
-                              </div>
-                              <div style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#ffffff'
-                              }}>
-                                {firearm.calibre}
-                              </div>
-                            </div>
-
-                            {/* 每秒甲伤 */}
-                            <div style={{
-                              border: '2px solid #10E28C',
-                              backgroundColor: '#16343b96',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              textAlign: 'center'
-                            }}>
-                              <div style={{
-                                padding: '4px 12px',
-                                borderRadius: '4px',
-                                color: '#10E28C',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                marginBottom: '6px',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                每秒甲伤
-                              </div>
-                              <div style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#ffffff'
-                              }}>
-                                {asDps(firearm.fireRate, firearm.armourDamage)}
-                              </div>
-                            </div>
-
-                            {/* 每秒肉伤 */}
-                            <div style={{
-                              border: '2px solid #10E28C',
-                              backgroundColor: '#16343b96',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              textAlign: 'center'
-                            }}>
-                              <div style={{
-                                padding: '4px 12px',
-                                borderRadius: '4px',
-                                color: '#10E28C',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                marginBottom: '6px',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                每秒肉伤
-                              </div>
-                              <div style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#ffffff'
-                              }}>
-                                {asDps(firearm.fireRate, firearm.bodyDamage)}
-                              </div>
-                            </div>
                           </div>
-
+                        </div>
+                        <div className="lmr-right">
+                          <Typography.Paragraph
+                            style={{ marginBottom: 0 }}
+                            type="secondary"
+                            ellipsis={{
+                              rows: 3,
+                              tooltip: firearm.review
+                                ? {
+                                  title: <div style={{ whiteSpace: "pre-line" }}>{firearm.review}</div>,
+                                  placement: "topLeft",
+                                }
+                                : false,
+                            }}
+                            className="whitespace-pre-line">
+                            {firearm.review || "暂无描述"}
+                          </Typography.Paragraph>
                         </div>
                       </div>
-                      <div className="lmr-right">
-                        <Typography.Paragraph
-                          style={{ marginBottom: 0 }}
-                          type="secondary"
-                          ellipsis={{
-                            rows: 3,
-                            tooltip: firearm.review
-                              ? {
-                                title: <div style={{ whiteSpace: "pre-line" }}>{firearm.review}</div>,
-                                placement: "topLeft",
-                              }
-                              : false,
-                          }}
-                          className="whitespace-pre-line">
-                          {firearm.review || "暂无描述"}
-                        </Typography.Paragraph>
-                      </div>
-                    </div>
 
-                  </div>
-                </Card>
-              </Col>
-            ))}
-            {firearms.length === 0 && (
-              <Col span={24}>
-                <Card>
-                  <Typography.Text type="secondary">暂无武器数据</Typography.Text>
-                </Card>
-              </Col>
-            )}
-          </Row>)}
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+              {firearms.length === 0 && (
+                <Col span={24}>
+                  <Card>
+                    <Typography.Text type="secondary">暂无武器数据</Typography.Text>
+                  </Card>
+                </Col>
+              )}
+            </Row>)}
         </div>
         <div className="flex justify-end">
           <Pagination
