@@ -1,16 +1,14 @@
-import { useCallback, useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { useCallback, useEffect, useState, useMemo } from "react"
 import { FirearmApi } from "@/api"
 import FirearmCreateModal from "@/components/firearm-create-modal"
 import FirearmEditModal from "@/components/firearm-edit-modal"
 import ModCodes from "@/components/mod-codes"
 import { useAppSelector } from "@/hooks/store"
 import { Firearm, FirearmType } from "@/types"
-import { Button, Card, Col, Pagination, Popconfirm, Row, Select, Tag, Typography, App } from "antd"
+import { Button, Card, Col, Pagination, Popconfirm, Row, Select, Spin, Typography, App, Input, AutoComplete } from "antd"
 import { ConfigProvider, theme } from 'antd';
-import type { CollapseProps } from 'antd';
+import type { AutoCompleteProps } from 'antd';
 import { Collapse } from 'antd';
-
 
 const firearmTypeText: Record<FirearmType, string> = {
   RIFLE: "步枪",
@@ -23,12 +21,8 @@ const firearmTypeText: Record<FirearmType, string> = {
   SPECIAL: "特殊",
 }
 
-
-
 const darkTheme = {
   algorithm: theme.darkAlgorithm,
-
-  // token: { colorPrimary: '#00b96b' },
 };
 
 const allTypeValue = "ALL"
@@ -45,35 +39,75 @@ export default function FirearmsPage() {
   const [typeFilter, setTypeFilter] = useState<FirearmTypeFilter>(allTypeValue)
   const [firearms, setFirearms] = useState<Firearm[]>([])
   const [total, setTotal] = useState<number>(0)
-
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editingFirearm, setEditingFirearm] = useState<Firearm | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [allOptions, setAllOptions] = useState<AutoCompleteProps['options']>([]);
+  const [filteredOptions, setFilteredOptions] = useState<AutoCompleteProps['options']>([]);
+  const [loading, setLoading] = useState(false);
 
   const loadFirearms = useCallback(async () => {
-    const pagedData = await FirearmApi.getFirearms({
-      page: page - 1,
-      size: 12,
+    setLoading(true);
+    const start = Date.now();
+
+    try {
+      const pagedData = await FirearmApi.getFirearms({
+        page: page - 1,
+        size: 8,
+        sortBy: "id",
+        direction: "ASC",
+        type: typeFilter === allTypeValue ? undefined : typeFilter,
+      });
+      setFirearms(pagedData.items);
+      setTotal(pagedData.totalElements);
+    } catch (error) {
+      // 可在此处理错误，比如 message.error
+    } finally {
+      const elapsed = Date.now() - start;
+      if (elapsed < 500) {
+        await new Promise(resolve => setTimeout(resolve, 500 - elapsed));
+      }
+      setLoading(false);
+    }
+  }, [page, typeFilter]);
+
+  const GetFirearmName = useCallback(async () => {
+    const Firearms = await FirearmApi.getFirearms({
+      page: 0,           // 从第一页开始
+      size: 100,        // 足够大的值，或者根据实际总数调整
       sortBy: "id",
       direction: "ASC",
-      type: typeFilter === allTypeValue ? undefined : typeFilter,
-    })
-    setFirearms(pagedData.items)
-    setTotal(pagedData.totalElements)
-  }, [page, typeFilter])
-
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-
-
+      type: undefined,   // 不按类型过滤，获取全部
+    });
+    const formatted = Firearms.items.map(item => ({
+      label: item.name,
+      value: item.name,        // 用名称作为 value
+      data: item,
+    }));
+    setAllOptions(formatted);
+    setFilteredOptions(formatted);
+  }, []);
+  const handleSearch = (searchText: string) => {
+    if (!searchText) {
+      setFilteredOptions(allOptions);
+      void loadFirearms()
+      return;
+    }
+    const lower = searchText.toLowerCase();
+    const filtered = allOptions?.filter(opt =>
+      opt?.label?.toString().toLowerCase().includes(lower)
+    );
+    setFilteredOptions(filtered);
+  };
 
 
   useEffect(() => {
     void loadFirearms()
-  }, [loadFirearms])
+    void GetFirearmName()
+  }, [loadFirearms, GetFirearmName])
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [page]);
-
 
   async function handleDelete(firearm: Firearm) {
     setDeletingId(firearm.id)
@@ -102,23 +136,45 @@ export default function FirearmsPage() {
               </Button>
             )}
           </div>
-          <Select<FirearmTypeFilter>
-            className="w-full sm:w-64"
-            value={typeFilter}
-            options={[
-              { value: allTypeValue, label: "全部类型" },
-              ...Object.entries(firearmTypeText).map(([value, label]) => ({
-                value,
-                label,
-              })),
-            ]}
-            onChange={(nextType) => {
-              setPage(1)
-              setTypeFilter(nextType)
-            }}
-          />
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <Select<FirearmTypeFilter>
+              className="w-full sm:w-64"
+              value={typeFilter}
+              options={[
+                { value: allTypeValue, label: "全部类型" },
+                ...Object.entries(firearmTypeText).map(([value, label]) => ({
+                  value,
+                  label,
+                })),
+              ]}
+              onChange={(nextType) => {
+                setPage(1)
+                setTypeFilter(nextType)
+              }}
+            />
+            <AutoComplete
+              style={{ width: 240 }}
+              options={filteredOptions}   // 使用过滤后的选项
+              placeholder="搜索武器名称"
+              showSearch={{ onSearch: handleSearch }}     // 输入时触发过滤
+              onSelect={async (value, option) => {
+                const selected = option.data as Firearm;
+                console.log('选中 ID:', selected.id);
+                console.log('选中名称:', selected.name);
+                const pagedData = await FirearmApi.getFirearm(selected.id)
+                const newArray = [];
+                newArray.push(pagedData)
+                setFirearms(newArray)
+                setTotal(1)
+              }}
+              allowClear
+            />
+          </div>
         </div>
         <div className="mb-6">
+          {loading?(<div className="flex justify-center items-center h-64">
+    <Spin size="large" tip="加载中..." />
+  </div>):(
           <Row gutter={[16, 16]}>
             {firearms.map((firearm) => (
               <Col key={firearm.id} xs={24} md={24} lg={24}>
@@ -171,11 +227,13 @@ export default function FirearmsPage() {
                   actions={[
                     <div>
                       <Collapse
+
                         expandIcon={() => null}
                         styles={
                           {
                             root: {
                               background: '#1e1e1e',
+                              width: '100%'
                             }
                           }
                         }
@@ -397,13 +455,13 @@ export default function FirearmsPage() {
                 </Card>
               </Col>
             )}
-          </Row>
+          </Row>)}
         </div>
         <div className="flex justify-end">
           <Pagination
             align="end"
             current={page}
-            pageSize={12}
+            pageSize={8}
             total={total}
             onChange={(nextPage) => {
               setPage(nextPage)

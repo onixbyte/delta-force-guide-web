@@ -5,6 +5,7 @@ import { AuthApi } from "@/api"
 import { useAppDispatch } from "@/hooks/store"
 import { setCurrentUser } from "@/store/auth-slice"
 import { LoginRequest } from "@/types"
+import dayjs from "dayjs";
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -16,7 +17,9 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const user = await AuthApi.login(values)
-      dispatch(setCurrentUser(user))
+      const expireTimestamp = dayjs(user.expiration).valueOf();
+      const authUser = { ...user, expireAt: expireTimestamp };
+      dispatch(setCurrentUser(authUser))
       message.success(`欢迎回来，${user.username}`)
       navigate("/firearms")
     } catch {

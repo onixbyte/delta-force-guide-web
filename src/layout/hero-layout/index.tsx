@@ -1,5 +1,5 @@
-import { Outlet, Link, NavLink } from "react-router-dom"
-import { useMemo } from "react"
+import { Outlet, Link, NavLink, useNavigate } from "react-router-dom"
+import { useEffect, useMemo } from "react"
 import dayjs from "dayjs"
 import { Dropdown } from "antd"
 import {
@@ -12,16 +12,30 @@ import { AuthApi } from "@/api"
 import { useAppDispatch, useAppSelector } from "@/hooks/store"
 import { clearCurrentUser } from "@/store/auth-slice"
 import { useState } from "react"
-
+import { clearAutoLogout, scheduleAutoLogout } from "@/utils/autoLogout";
+import DisplayBoard from '@/components/DisplayBoard';
 /**
  * Main application component that serves as the root layout.
  * Uses React Router's Outlet to render child routes.
  */
+
+
+
 export default function HeroLayout() {
+
+
+
+
   const today = useMemo(() => dayjs(), [])
   const user = useAppSelector((state) => state.auth.user)
   const dispatch = useAppDispatch()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  // 统一登出函数：清除定时器、清除 Redux、跳转登录页
+  const performLogout = () => {
+    clearAutoLogout();
+    dispatch(clearCurrentUser());
+  };
 
   async function handleLogout() {
     try {
@@ -31,8 +45,22 @@ export default function HeroLayout() {
     }
   }
 
+  useEffect(() => {
+    if (user?.expiration) {
+      const localDate = new Date(user.expiration.replace(' ', 'T'));
+      const targetTimestamp = localDate.getTime();
+      if (targetTimestamp > Date.now()) {
+        scheduleAutoLogout(targetTimestamp, performLogout);
+      } else {
+        // 已过期立即登出
+        performLogout();
+      }
+    } else {
+      clearAutoLogout();
+    }
+  }, [user]);
   return (
-    <div className="bg-[#1b252a] ">
+    <div className="bg-[#1b252a] flex flex-col min-h-screen">
       {/* Navigation Header */}
       <header className="bg-[#0b0f14] shadow-sm border-b">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 h-full">
@@ -40,12 +68,14 @@ export default function HeroLayout() {
             <div className="flex items-center">
               <h1 className="text-xl font-semibold text-white">《三角洲》指南</h1>
             </div>
+            <div>
+              <DisplayBoard />
+            </div>
             <nav className="flex h-full">
               <NavLink
                 to="/firearms"
                 className={({ isActive }) =>
-                  `nav-item inline-flex items-center px-10 h-full text-base font-medium transition-all duration-200 ${
-                    isActive ? "active" : ""
+                  `nav-item inline-flex items-center px-10 h-full text-base font-medium transition-all duration-200 ${isActive ? "active" : ""
                   } text-gray-500 hover:text-white`
                 }>
                 武器列表
@@ -62,10 +92,11 @@ export default function HeroLayout() {
             </nav>
           </div>
         </div>
+
       </header>
 
       {/* Main Content Area */}
-      <main className=" max-w-screen-2xl mx-auto py-6 sm:px-6 lg:px-10">
+      <main className="flex-1 w-full max-w-screen-2xl mx-auto py-6 sm:px-6 lg:px-10">
         <div className="px-4 py-6 sm:px-0">
           <Outlet />
         </div>
@@ -145,7 +176,7 @@ export default function HeroLayout() {
                     },
                   ],
                 }}>
-                <span className="nav-item inline-flex items-center px-10 h-full text-base font-medium text-gray-500 hover:text-white cursor-pointer">
+                <span className="inline-flex items-center px-10 h-full text-base font-medium text-gray-500 hover:text-white cursor-pointer">
                   {user.username}
                 </span>
               </Dropdown>
@@ -161,7 +192,7 @@ export default function HeroLayout() {
 
           <div className="border-t border-gray-800 my-6" />
           <div className="text-center text-xs text-gray-500">
-            <p>© 2024-{today.year()} Zihlu Wang 和 OnixByte。使用 React 与 TypeScript 构建。</p>
+            <p>© 2024-{today.year()} OnixByte。</p>
           </div>
         </div>
       </footer>

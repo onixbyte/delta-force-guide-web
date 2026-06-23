@@ -1,6 +1,6 @@
 // ModCodes.tsx
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Card, Col, Pagination, Row, Tag, Typography, Button, Popconfirm, Space, Select, App } from "antd";
+import { Card, Col, Pagination, Row, Tag, Typography, Button, Popconfirm, Space, Select, App, message } from "antd";
 import { Link } from "react-router-dom";
 import { ModificationApi, TagApi } from "@/api";
 import { Modification } from "@/types";
@@ -47,9 +47,10 @@ export default function ModCodes({ firearmId }: ModCodesProps) {
         page: page - 1,
         size: pageSize,
         sortBy: "id",
-        direction: "ASC",
+        direction: "DESC",
         firearmId: numericId, // 使用数字类型
         tags: selectedTags,
+
       });
       setModifications(pagedData.items);
       setTotal(pagedData.totalElements);
@@ -92,14 +93,14 @@ export default function ModCodes({ firearmId }: ModCodesProps) {
   if (!parsedFirearmId) {
     return <Typography.Text type="secondary">无效的武器 ID</Typography.Text>;
   }
-const tagColors = [
-  '#e28010', // 青绿
-  '#0EA5E9', // 天蓝
-  '#8B5CF6', // 紫色
-  '#F59E0B', // 琥珀
-  '#EF4444', // 红色
-  '#EC4899', // 粉红
-];
+  const tagColors = [
+    '#e28010', // 青绿
+    '#0EA5E9', // 天蓝
+    '#8B5CF6', // 紫色
+    '#F59E0B', // 琥珀
+    '#EF4444', // 红色
+    '#EC4899', // 粉红
+  ];
 
 
   return (
@@ -183,11 +184,11 @@ const tagColors = [
                     <span>
                       <strong style={{
                         color: '#10E28C',
-                        fontWeight:800
+                        fontWeight: 800
                       }}>改枪码：</strong>
                       <code className="rounded" style={{
-                          color: '#10E28C',
-                          fontWeight:600
+                        color: '#10E28C',
+                        fontWeight: 600
                       }}>
                         {modification.code}
                       </code>
@@ -195,7 +196,14 @@ const tagColors = [
                     <Button
                       type="text"
                       size="small"
-                      onClick={() => navigator.clipboard.writeText(modification.code)}
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(modification.code);
+                          message.success('已复制到剪贴板');   // 绿色成功提示，2秒后自动消失
+                        } catch {
+                          message.error('复制失败，请重试');   // 红色错误提示
+                        }
+                      }}
                     >
                       复制
                     </Button>
@@ -204,9 +212,9 @@ const tagColors = [
                   {/* 作者 */}
                   <div className="flex items-center justify-between gap-2">
                     <Typography.Text style={{
-                        color:'#B59728',
-                        fontWeight:800
-                      }}>
+                      color: '#B59728',
+                      fontWeight: 800
+                    }}>
                       <strong>作者：</strong>
                       {modification.author || "未知"}
                     </Typography.Text>
@@ -214,7 +222,7 @@ const tagColors = [
                   {/* 标签列表 */}
                   {(modification.tags?.length || 0) > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {(modification.tags || []).map((tag,idx) => (
+                      {(modification.tags || []).map((tag, idx) => (
                         <Tag key={`${modification.id}-${tag}`} style={{
                           background: tagColors[idx % tagColors.length],
                           font: '800'
@@ -229,7 +237,7 @@ const tagColors = [
                       <Typography.Text strong>配件配置：</Typography.Text></div>
                     {(modification.accessories?.length || 0) > 0 ? (
                       <div className="mt-2 overflow-x-auto">
-                        <div className="grid min-w-[275px] grid-cols-6 gap-2">
+                        <div className="grid min-w-[275px] grid-cols-4 gap-2">
                           {(modification.accessories || []).map((accessory, accessoryIndex) => (
                             <div
                               key={`${modification.id}-accessory-${accessoryIndex}`}

@@ -13,7 +13,10 @@ interface ModificationCreateModalProps {
 }
 
 function normalizeRequest(values: ModificationRequest): ModificationRequest {
+  console.log(values);
   return {
+    
+    
     firearmId: values.firearmId,
     name: values.name.trim(),
     code: values.code.trim(),
@@ -64,10 +67,11 @@ export default function ModificationCreateModal({
           firearmId: lockedFirearmId ?? values.firearmId,
         })
       )
+
       message.success("改枪码创建成功")
       form.resetFields()
       onSuccess(modification)
-    } catch {
+    } catch{
       message.error("改枪码创建失败，请稍后重试")
     } finally {
       setLoading(false)
