@@ -9,5 +9,5 @@ export async function login(loginRequest: LoginRequest): Promise<User> {
 }
 
 export async function logout() {
-  await WebClient.get<void>("/auth/logout")
+  await WebClient.post<void>("/auth/logout")
 }

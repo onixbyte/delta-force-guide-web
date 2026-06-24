@@ -181,7 +181,41 @@ export default function FirearmsPage() {
 
                   <Card
                     className="hex-bg border-5px-#142c38"
+                    title={
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        width: '100%'
+                      }}>
+                        <span style={{
+                          display: 'inline-block',
+                          color: '#10E28C',
+                          padding: '4px 12px',
+                          borderRadius: '4px',
+                          fontSize: '18px',
+                          fontWeight: '500',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {firearm.name}
+                        </span>
+                        <span className="flex items-center justify-between"
+                          style={{
+                            display: 'inline-block',
+                            backgroundColor: '#2d4f5796',
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            letterSpacing: '0.5px'
+                          }}>
+                          {firearmTypeText[firearm.type]}
+
+                        </span></div>
+                    }
                     extra={
+
                       user ? (
                         <div className="flex items-center gap-1">
                           <Button type="link" size="small" onClick={() => setEditingFirearm(firearm)}>
@@ -262,38 +296,6 @@ export default function FirearmsPage() {
                     <div className="flex flex-col gap-3">
                       <div className="lmr-container">
                         <div className="lmr-left">
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            width: '100%'
-                          }}>
-                            <span style={{
-                              display: 'inline-block',
-                              backgroundColor: '#555555',
-                              color: 'white',
-                              padding: '4px 12px',
-                              borderRadius: '4px',
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              letterSpacing: '0.5px'
-                            }}>
-                              {firearm.name}
-                            </span>
-                            <span className="flex items-center justify-between"
-                              style={{
-                                display: 'inline-block',
-                                backgroundColor: '#2d4f5796',
-                                color: 'white',
-                                padding: '4px 12px',
-                                borderRadius: '4px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                letterSpacing: '0.5px'
-                              }}>
-                              {firearmTypeText[firearm.type]}
-
-                            </span></div>
                         </div>
                         <div className="lmr-middle">
                           <div style={{

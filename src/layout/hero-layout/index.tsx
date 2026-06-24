@@ -50,6 +50,8 @@ export default function HeroLayout() {
       const localDate = new Date(user.expiration.replace(' ', 'T'));
       const targetTimestamp = localDate.getTime();
       if (targetTimestamp > Date.now()) {
+        console.log("未到自动登出时间");
+        
         scheduleAutoLogout(targetTimestamp, performLogout);
       } else {
         // 已过期立即登出
@@ -192,7 +194,7 @@ export default function HeroLayout() {
 
           <div className="border-t border-gray-800 my-6" />
           <div className="text-center text-xs text-gray-500">
-            <p>© 2024-{today.year()} OnixByte。</p>
+            <p>© 2024-{today.year()} OnixByte。湘ICP备2026000274号-1</p>
           </div>
         </div>
       </footer>

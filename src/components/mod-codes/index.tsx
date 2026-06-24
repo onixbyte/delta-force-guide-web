@@ -267,7 +267,8 @@ export default function ModCodes({ firearmId }: ModCodesProps) {
                                     <Tag
                                       key={`${modification.id}-${accessoryIndex}-tuning-${tuningIndex}`}
                                       style={{
-                                        background: '#10E28C',
+                                        background: '#EED177',
+                                        color: '#000000',
                                       }}
                                     >
                                       {tuning.tuningName || "未命名"}: {tuning.tuningValue ?? "-"}
